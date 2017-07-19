@@ -44,6 +44,7 @@ def create_sangbog(name, style, logo):
 	
 	if(os.path.isfile("temp/" + "SongBook-" + name + ".pdf")):
 		os.replace("temp/" + "SongBook-" + name + ".pdf", "Booklet/" + "SongBook-" + name + ".pdf")
+	
 
 def isSongOnPage(title, pageNum, pages):
 	boolean = False
@@ -175,7 +176,7 @@ def main(argv):
 	style = ""		  #the chosen style
 	logo = ""		   #the file containing the logo for the front page
 	try:
-		opts, args = getopt.getopt(argv, "hs:n:l:p:", ["help", "style=", "name=", "logo="])
+		opts, args = getopt.getopt(argv, "hs:n:l:p:", ["help", "style=", "name=", "logo=", "number_style="])
 	except getopt.GetoptError:
 		usage()
 		sys.exit(2)
@@ -183,13 +184,13 @@ def main(argv):
 		if opt in ("-h","--help"):		  #option used to print usage
 			usage()
 			sys.exit()
-		elif opt in ("-s", "--number_style"):	   #option used to set the pagenumber style in the tex file
+		elif opt in ("-s", "--style"):	   #option used to set the pagenumber style in the tex file
 			style = arg
 		elif opt in ("-n", "--name"):		   #option used to set the name
 			name = arg
 		elif opt in ("-l", "--logo"):		   #option used to get a logo on the front page
 			logo = arg
-		elif opt in ("-p", "--style"):		  #option used for making a new pagenumber style
+		elif opt in ("-p", "--number_style"):		  #option used for making a new pagenumber style
 			new_style = arg
 			n = new_style.split(" ")[0]		#split the argument into two parts, a name
 			s = new_style.split(" ")[1]		#and the style, that will be a regular expression
