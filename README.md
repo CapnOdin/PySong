@@ -9,7 +9,7 @@
 
 ## Command Line Parameters:
 - -l, --logo \<file>
-  - Used to specify logo to be used on the first page (cannot be used with -e)
+  - Used to specify logo to be used on the first page
 - -n, --name \<name>
   - The name/title for the songbook
 - -s, --style \<style>
@@ -19,10 +19,13 @@
 
 ## Usage example:
 `python PySong.py -n SDC -s binary -l Resources/UNF_Logo.svg`
-This gives a songbooklet where the title is SDC, it uses binary pagenumbers, and the logo is UNF_Logo.svg.
+
+This gives a songbooklet where the title is SDC, that have binary pagenumbers, and with the logo UNF_Logo.svg.
 
 ## Remarks:
-For the new_style option one has to enter the new style of form: "name [regular expression", for example `python Sangbog.py -p "example ([a-z]|[A-Z])\d"`
+The _**new_style**_ option takes a style name and a regular expression seperated by a space "**name** *regular-expression*"
+
+e.g. `python Sangbog.py -p "example ([a-z]|[A-Z])\d"`
 
 Logos have to be either *svg*, *png* or *jpg*.
 
