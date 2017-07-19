@@ -8,11 +8,11 @@
 * *Songs*:   http://songs.sourceforge.net/downloads.html
 
 ## Command Line Parameters:
-- -l, --logo <file>
+- -l, --logo \<file>
   - Used to specify logo to be used on the first page (cannot be used with -e)
-- -n, --name <name>
+- -n, --name \<name>
   - The name/title for the songbook
-- -s, --style <style>
+- -s, --style \<style>
   - Specifies the pagenumber style to be used
 - -p, --new_style <name regular expression>
   - Specifies a new style to be added.
