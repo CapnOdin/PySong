@@ -22,7 +22,7 @@
 This gives a songbooklet where the title is SDC, it uses binary pagenumbers, and the logo is UNF_Logo.svg.
 
 ## Remarks:
-For the new_style option one has to enter the new style of form: "name [regular expression", for example python Sangbog.py -p "example ([a-z]|[A-Z])\d"
+For the new_style option one has to enter the new style of form: "name [regular expression", for example `python Sangbog.py -p "example ([a-z]|[A-Z])\d"`
 
 Logos have to be either *svg*, *png* or *jpg*.
 
