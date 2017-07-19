@@ -23,12 +23,12 @@
 This gives a songbooklet where the title is SDC, that have binary pagenumbers, and with the logo UNF_Logo.svg.
 
 ## Remarks:
-The _**new_style**_ option takes a style name and a regular expression seperated by a space "**name** *regular-expression*"
+The _**--new_style**_ option takes a style name and a regular expression seperated by a space "**name** *regular-expression*"
 
 e.g. `python Sangbog.py -p "example ([a-z]|[A-Z])\d"`
 
 Logos have to be either *svg*, *png* or *jpg*.
 
-If the style specified in the option --style does not exist then arabic style will be used.
+If the style specified in the option _**--style**_ does not exist then *arabic* style will be used.
 
 Add Experlantion of the new Option system.
