@@ -14,7 +14,7 @@
   - The name/title for the songbook
 - -s, --style \<style>
   - Specifies the pagenumber style to be used
-- -p, --new_style <name regular expression>
+- -p, --new_style \<name regular expression>
   - Specifies a new style to be added.
 
 ## Usage example:
