@@ -1,4 +1,4 @@
-PySong generates a pdf songbooklet.
+# PySong generates pdf songbooklets
 
 ## Requirements and Installation:
 * *svglib*: `python pip install svglib`
