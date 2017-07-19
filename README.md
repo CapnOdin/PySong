@@ -5,7 +5,7 @@
 * *svglib*: `python pip install svglib`
 * *rstr*:   `python pip install rstr`
 * *MiKTeX*:  https://miktex.org/download
-* *Songs*:   http://songs.sourceforge.net/downloads.html
+* *Songs*:   http://songs.sourceforge.net/downloads.html (You do not need Vim nor Adobe Acrobat Reader)
 
 ## Command Line Parameters:
 - -l, --logo \<file>
