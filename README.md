@@ -1,5 +1,5 @@
 # PySong
-This pakage alows for the generation of pdf songbooklets.
+This package allows for the generation of pdf songbooklets.
 
 ## Requirements and Installation:
 * *Python 3*: https://www.python.org/downloads/
