@@ -1,6 +1,7 @@
 # PySong generates pdf songbooklets
 
 ## Requirements and Installation:
+* *Python 3*: https://www.python.org/downloads/
 * *svglib*: `python pip install svglib`
 * *rstr*:   `python pip install rstr`
 * *MiKTeX*:  https://miktex.org/download
