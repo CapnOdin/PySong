@@ -1,4 +1,5 @@
-# PySong generates pdf songbooklets
+# PySong
+This pakage alows for the generation of pdf songbooklets.
 
 ## Requirements and Installation:
 * *Python 3*: https://www.python.org/downloads/
