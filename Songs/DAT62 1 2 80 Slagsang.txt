@@ -1,4 +1,4 @@
-\beginsong{DAT62(1/2)80 Slagsang}[sr={Melodi:Fy Fy Skamme Skamme - McEwan og Ingerslev}
+{"num" : 43}\beginsong{DAT62(1/2)80 Slagsang}[sr={Melodi:Fy Fy Skamme Skamme - McEwan og Ingerslev}
 ,
 by={ Fra en eller anden rustur}
 ,

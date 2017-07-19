@@ -1,4 +1,4 @@
-\beginsong{Linieskriverdriversangen}[sr={Melodi:Dyrene i Hakkebakkeskoven "Peberkagebagesangen"}
+\beginsong{Linieskriverdriversangen}[sr={Melodi: Dyrene i Hakkebakkeskoven "Peberkagebagesangen"}
 ,
 by={ DIKUrevy 2005}
 ,

@@ -1,4 +1,4 @@
-\beginsong{ScienceCamps}[sr={Melodi: Pokémon} %5
+\beginsong{ScienceCamps}[sr={Melodi: Pokémon}
 ,
 by={ UNFRevy 2016}
 ,

@@ -1,6 +1,6 @@
 \beginsong{Se min Kode}
 [by={TÅGEKAMMERETs Julerevy 03 @ DAIMI}
-,sr={Melodi:Se min kjole}
+,sr={Melodi: Se min kjole}
 ]
 
 \beginverse

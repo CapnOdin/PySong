@@ -1,4 +1,4 @@
-\beginsong{$\alpha\beta$-sangen}[sr={Melodi: I en kælder sort som kul} %30
+\beginsong{$\alpha\beta$-sangen}[sr={Melodi: I en kælder sort som kul}
 ,
 by={ Tenna Schaldemose og Tine Nyeng, Majrevy 2004}
 ,
@@ -6,6 +6,7 @@ cr={}]
 For en god ordens skyld må vi hellere nævne, at det fjerde
 bogstav er delta og det tiende er kappa; opdelingen er
 kun lavet for at det skal passe på versefødder.\\
+\vspace{1.25em}
 \beginverse
 				Alfa beta gamma del-
 				ta epsilon zeta

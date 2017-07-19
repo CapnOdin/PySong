@@ -1,4 +1,4 @@
-\beginsong{Mat'matik}[sr={Melodi: Tema fra Bubbi-bjørnene} %6
+\beginsong{Mat'matik}[sr={Melodi: Tema fra Bubbi-bjørnene}
 ,
 by={ FysikRevy 2008}
 ,
