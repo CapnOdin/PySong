@@ -1,10 +1,9 @@
 import sys, os, getopt, re
 import preamble, auxiliary, style_tex
 from subprocess import call
-current_version = sys.version_info
-import pyPdf
+import PyPDF2
 
-"""This function is used to create the tex file that is the songbook"""
+
 class SongBooklet:
 	
 	def __init__(self, name, style, logo, indexing):
@@ -14,28 +13,31 @@ class SongBooklet:
 		# Stored for later use
 		self.name = name
 		self.indexing = indexing
+		self.lastPageChanged = False
 		
 		# Translates the specified style to the name of an existing one
 		self.style = auxiliary.search_styles(style)
 		
 		# Creates the preamble of the tex file
 		self.texPreamble = preamble.create_preamble(name, self.style, logo)
+		self.texPreambleTest = preamble.create_preamble(name, "arabic", logo)
 		
 		# Retrieves the songs in the folder
 		self.songLst = self.getSongs()
-
-
+	
+	
+	# Main function
 	def makeBooklet(self):
-		
 		self.makeIndex() # Generates the index file
 		
-		# Addes the songs to the preamble and generates the pdf
-		# The reason to generate the pdf multiple times is to make the internal latex references work
-		tex = self.makePDF("***SONGS***", self.songsToString(), self.texPreamble)
+		# Addes the songs to the preamble and generates a simplifyed pdf used to varify that the special conditions of songs are satisfied
+		tex = self.makePDF("***SONGS***", self.songsToString(False), self.texPreambleTest, True)
 		
-		# If the special conditions of songs aren't satisfied the pdf is generated again with tweeked parameters
-		if(not self.varifyIntegrity()):
-			tex = self.makePDF("***SONGS***", self.songsToString(), self.texPreamble)
+		# retrieves the start and end page of each song
+		self.checkPagesOfSongs()
+		
+		# The reason to generate the pdf multiple times is to make the internal latex references work
+		tex = self.makePDF("***SONGS***", self.songsToString(), self.texPreamble, True, True)
 		
 		# Generates the final pdf booklet
 		self.makePDF("%***BOOKLET***", "", tex)
@@ -44,44 +46,56 @@ class SongBooklet:
 		if(os.path.isfile("temp/" + "SongBook-" + self.name + ".pdf")):
 			os.replace("temp/" + "SongBook-" + self.name + ".pdf", "Booklet/" + "SongBook-" + self.name + ".pdf")
 
-
-	def makePDF(self, replace, string, tex):
+	
+	# Prepares the tex file and generate it
+	def makePDF(self, replace, string, tex, quiet = False, draft = False):
 		tex = self.addString(replace, string, tex)
-		self.compilePDF()
+		
+		# handles if a temporary page number change happens on the last page
+		if(self.lastPageChanged):
+			tex = self.addString("%***SPECIAL-PAGE-CHANGE***", "\\pagenumbering{" + self.style + "}\n\\setcounter{page}{\\value{temppage} + 1}\n", tex)
+		
+		self.compilePDF(quiet, draft)
 		return tex
 		
+	
+	# Calles pdflatex to generate the pdf
+	def compilePDF(self, quiet = False, draft = False):
+		args = ["pdflatex", "--output-directory", "temp/", "--jobname", "SongBook-" + self.name, "temp/SongBooklet.tex"]
+		if(quiet):
+			args.append("--quiet")
+		if(draft):
+			args.append("--draftmode")
+		call(args)
 
-	def compilePDF(self):
-		call(["pdflatex", "-output-directory", "temp/", "-jobname", "SongBook-" + self.name, "temp/SongBooklet.tex"])
-
-
-	def varifyIntegrity(self):
+	
+	# Finds the start and end page number of each song
+	def checkPagesOfSongs(self):
 		f = open("temp/SongBook-" + self.name + ".pdf", "rb")
-		pdf = pyPdf.PdfFileReader(f)
+		pdf = PyPDF2.PdfFileReader(f)
+		dests = pdf.getNamedDestinations()
 		
-		inconsistency = False
+		# finds the ending destination of each song
+		for dest in dests:
+			song = re.search("^song(\d*)-?(\d*)$", dest)
+			if(song != None and song.group(2).isnumeric()):
+				if("endPage" in self.songLst[int(song.group(1))]):
+					self.songLst[int(song.group(1))]["endPage"] = int(song.group(2)) if self.songLst[int(song.group(1))]["endPage"] < int(song.group(2)) else self.songLst[int(song.group(1))]["endPage"]
+				else:
+					self.songLst[int(song.group(1))]["endPage"] = int(song.group(2))
+		
+		# finds the page of the ending destination and the start page of each song
+		index = self.indexing
 		for song in self.songLst:
-			if("page" in song["options"]):
-				song["options"]["pagebool"] = self.isSongOnPage(song["title"], song["options"]["page"], pdf.pages)
-				if(not song["options"]["pagebool"]):
-					inconsistency = True
-					
-		f.close()
-		return not inconsistency
-		
-
-	def isSongOnPage(self, title, pageNum, pages):
-		boolean = False
-		index = 0
-		for page in pages:
-			if(index < len(pages) - 1):
-				if(re.search("\d+" + title.replace(" ", ""), page.extractText())): # if page contains the song
-					if(re.search(str(pageNum) + "$", page.extractText()) != None): # if page ends with the expected page number
-						boolean = True
+			if("endPage" in song):
+				song["startPage"] = pdf.getDestinationPageNumber(dests["song" + str(index)])
+				song["endPage"] = pdf.getDestinationPageNumber(dests["song" + str(index) + "-" + str(song["endPage"])])
+				#print(str(song["startPage"])  + "  " + str(song["endPage"]) + "  " + song["title"])
 			index += 1
-		return boolean
+		f.close()
 		
-
+	
+	# Loads songs
 	def getSongs(self):
 		specialSongs = []
 		songs = []
@@ -108,7 +122,8 @@ class SongBooklet:
 			songs.insert(index, song)
 		return songs
 
-
+	
+	# Used for sorting
 	def comparFun(self, song, title = True):
 		if("pos" in song["options"]):
 			return song["options"]["pos"]
@@ -118,71 +133,75 @@ class SongBooklet:
 			return song["title"]
 		else:
 			return title
-
-
-	def songsToString(self):
-		songsStr = "\n\\setcounter{songnum}{" + str(self.indexing) + "}\n\\setcounter{page}{" + str(self.indexing) + "}\n"
 		
-		next_page = 0
+	
+	# Retrieves the song text and handles special conditions of songs
+	def songsToString(self, specialOptions = True):
+		index = 0
 		counter = self.indexing
-		bool = False
-		linesPerPage = 64 * 2
+		tempPageChange = False
+		before = True
+		after = True
+		
+		init = "\n\\setcounter{songnum}{" + str(self.indexing) + "}\n\\setcounter{page}{" + str(self.indexing) + "}\n"
+		
+		songStrLst = []
 		
 		for song in self.songLst:
-			text = ""
-			j = song["text"].find("]")
+			text = [self.handleNoConstraints(song, song["text"].find("]"), counter, specialOptions)]
 			
-			before = song["options"]["pagebool"] if "pagebool" in song["options"] else True
-			
-			if("page" in song["options"]):
-				next_page = linesPerPage * 1.5
-				bool = True
-			
-			if("page" in song["options"] and before):
-				text += self.handlePageConstraints(song)
+			if(specialOptions):
+				#before = song["options"]["pagebool"] if "pagebool" in song["options"] else True
 				
-			if("num" in song["options"].keys()):
-				text += self.handleNumberConstraints(song, j, counter)
-				
-			else:
-				next_page -= self.getNumOfLines(song["text"][j+1:])
-				if(bool and next_page < 0):
-					text += "\\pagenumbering{" + self.style + "}\n\\setcounter{page}{\\value{temppage} + 1}\n"
-					bool = False
-				text += self.handleNoConstraints(song, j, counter)
+				if(tempPageChange and counter == index):
+					text.insert((0 if after else len(text)), "\\pagenumbering{" + self.style + "}\n\\setcounter{page}{\\value{temppage} + 1}\n")
+					tempPageChange = False
+					
+				if("page" in song["options"]):
+					before, after, index = self.evalPageChangeIndex(counter)
+					text.insert((0 if before else len(text)), self.handlePageConstraints(song))
+					tempPageChange = True
+					
+				if("num" in song["options"].keys()):
+					text.insert(0, "\\setcounter{temp}{\\thesongnum}\n\\setcounter{songnum}{" + str(song["options"]["num"]) + "}")
+					text.append("\n\\setcounter{songnum}{\\thetemp + 1}")
 			
-			if("page" in song["options"] and not before):
-				text += self.handlePageConstraints(song)
-				
-			songsStr += "\n" + text + "\n"
+			songStrLst.append("".join(text))
 			counter += 1
-		return songsStr
+		return init + "\n".join(songStrLst)
 
 
+	# The latex commands needed to handle temporary page changes
 	def handlePageConstraints(self, song):
 		tempStyle = song["options"]["style"] if "style" in song["options"].keys() else "arabic"
 		return "\\setcounter{temppage}{\\value{page}}\n\\pagenumbering{" + tempStyle + "}\n\\setcounter{page}{" + str(song["options"]["page"]) + "}\n"
 
 
-	def handleNumberConstraints(self, song, j, counter):
-		text = "\\setcounter{temp}{\\thesongnum}\n\\setcounter{songnum}{" + str(song["options"]["num"]) + "}"
-		text += self.handleNoConstraints(song, j, counter)
-		text += "\n\\setcounter{songnum}{\\thetemp + 1}"
-		return text
+	# The latex commands needed to handle an arbitrary song
+	def handleNoConstraints(self, song, j, counter, bool = True):
+		bookmark = song["title"] if bool else "song" + str(counter)
+		song["text"] = song["text"].replace("\\beginverse", "\\hypertarget{song" + str(counter) + "-\\arabic{versenum}}{}\\label{song" + str(counter) + "-\\arabic{versenum}}\n\\beginverse")
+		return song["text"][:j+1] + "\\hypertarget{" + bookmark  + "}{}\n\\label{song" + str(counter) + "}\n" + song["text"][j+1:] + "\n"
 
+	
+	# Finds an appropriate place to change the page temporarily
+	def evalPageChangeIndex(self, index):
+		before = self.songLst[(index - 1 if index > 0 else 0)]["endPage"] == self.songLst[index]["startPage"]
+		
+		page = self.songLst[index]["startPage"]
+		while(index < len(self.songLst) and self.songLst[index]["startPage"] == page):
+			index += 1
+		
+		if(index == len(self.songLst)):
+			self.lastPageChanged = True
+			after = True
+		else:
+			after = self.songLst[(index - 1 if index > 0 else 0)]["endPage"] == self.songLst[index]["startPage"]
+			
+		return before, after, index
 
-	def handleNoConstraints(self, song, j, counter):
-		return song["text"][:j+1] + "\\hypertarget{" + song["title"] + "}{}\n\\label{song" + str(counter) + "}\n" + song["text"][j+1:] + "\n"
-
-
-	def getNumOfLines(self, song):
-		num = 0
-		song = re.sub("\\\w+", "a", song)
-		for line in re.split("\n+", song):
-			num += 1 + len(line) / 40
-		return num
-
-
+	
+	# Generates the index file
 	def makeIndex(self):
 		index_file = open("temp/titlefile.sbx",'w+', encoding = 'utf-8')
 		
@@ -192,6 +211,7 @@ class SongBooklet:
 		index_file.close()
 
 
+	# Made to handle UTF-8 with BOM, UTF-8 without BOM and ANSI
 	def fileRead(self, file):
 		try:
 			text = open(file, 'r', encoding = 'utf-8-sig').read()
@@ -199,7 +219,8 @@ class SongBooklet:
 			text = open(file, 'r').read()
 		return text
 
-
+	
+	# Replaces the tag with a string and writes it to the tex file
 	def addString(self, tag, string, tex):
 		f = open("temp/SongBooklet.tex", 'w+', encoding = 'utf-8')
 		tex = tex.replace(tag, string)
@@ -208,6 +229,7 @@ class SongBooklet:
 		return tex
 		
 
+	# Makes sure that used directories exists
 	def makeDirs(self):
 		if not os.path.isdir("temp"):
 			os.mkdir("temp")
@@ -218,14 +240,14 @@ class SongBooklet:
 		
 	
 def usage():
-	print("Usage: " + sys.argv[0] + " -p <used to define new pagenumbering style> -s <choose pagenumbering style> -n <name of sangbook> -l <file for logo, svg or png>")
-	print("Options: -c (if it is a camp) -u (if it is UNF) -e (if you do no want a front page) -S (if you want the songs to be sorted by title) -f (if you want the songs to be sorted by a fixed number)")
+	print("Usage: " + sys.argv[0] + " -p <used to define new pagenumbering style> -s <choose pagenumbering style> -n <name of sangbook> -l <logo file, svg or png>")
+	print("Options: -i (start index)")
 
 
 def main(argv):
-	name = ""		   #name of the songbook
-	style = ""		  #the chosen style
-	logo = ""		   #the file containing the logo for the front page
+	name = ""		#name of the songbook
+	style = ""		#the chosen style
+	logo = ""		#the file containing the logo for the front page
 	indexing = 0
 	try:
 		opts, args = getopt.getopt(argv, "hs:n:l:p:i:", ["help", "style=", "name=", "logo=", "number_style=", "indexing="])
