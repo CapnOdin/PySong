@@ -1,4 +1,4 @@
-{"num" : 0}\beginsong{Vi kan ikke li'}[sr={Melodi: Vores buschauffør kan ikke køre bus}
+{"pos" : 0}\beginsong{Vi kan ikke li'}[sr={Melodi: Vores buschauffør kan ikke køre bus}
 ,
 by=%{ Terese og andre}
 ,
