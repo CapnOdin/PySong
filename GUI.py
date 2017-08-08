@@ -5,6 +5,7 @@ import os, sys, inspect, time
 cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile( inspect.currentframe() ))[0])) + "\\lib"
 if cmd_folder not in sys.path:
 	sys.path.insert(0, cmd_folder)
+	sys.path.insert(0, cmd_folder + "\\PyPDF2")
 
 import tkinter as tk
 from tkinter import ttk, font, filedialog
