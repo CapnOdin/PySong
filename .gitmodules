@@ -1,0 +1,3 @@
+[submodule "lib/PyUtil"]
+	path = lib/PyUtil
+	url = https://github.com/CapnOdin/PyUtil
