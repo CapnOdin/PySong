@@ -1,3 +1,6 @@
 [submodule "lib/PyUtil"]
 	path = lib/PyUtil
 	url = https://github.com/CapnOdin/PyUtil
+[submodule "lib/PyPDF2"]
+	path = lib/PyPDF2
+	url = https://github.com/mstamy2/PyPDF2
