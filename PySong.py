@@ -27,7 +27,9 @@ class SongBooklet:
 	
 	
 	# Main function
-	def makeBooklet(self):
+	def makeBooklet(self, boolean = True):
+		self.songLst = self.sortSongs(self.songLst)
+		
 		self.makeIndex() # Generates the index file
 		
 		# Addes the songs to the preamble and generates a simplifyed pdf used to varify that the special conditions of songs are satisfied
@@ -40,7 +42,10 @@ class SongBooklet:
 		tex = self.makePDF("***SONGS***", self.songsToString(), self.texPreamble, True, True)
 		
 		# Generates the final pdf booklet
-		self.makePDF("%***BOOKLET***", "", tex)
+		if(boolean):
+			self.makePDF("%***BOOKLET***", "", tex)
+		else:
+			self.compilePDF()
 		
 		# Moves the pdf to the folder named "Booklet"
 		if(os.path.isfile("temp/" + "SongBook-" + self.name + ".pdf")):
@@ -97,20 +102,32 @@ class SongBooklet:
 	
 	# Loads songs
 	def getSongs(self):
-		specialSongs = []
 		songs = []
 		for file in os.listdir("Songs/"):
 			if(file.endswith(".txt")):
 				song = self.fileRead("Songs/" + file)
-				line0 = song[:song.find("\n")]
-				options = line0[:line0.find("\\")]
+				line0 = song[song.find("\\") + 1:song.find("]")]
+				options = song[:song.find("\\")]
 				title = re.search('(?<=song{)(.*?)}', line0)
+				melody = re.search('(?<=sr={)(Melodi:)?\s*(.*?)}', line0)
+				author = re.search('(?<=by={)\s*(.*?)}', line0)
 				if(title != None):
-					title = title.group(1)
-					if(options != ""):
-						specialSongs.append({"title" : title, "text" : song[song.find("\\"):], "options" : eval(options)})
-					else:
-						songs.append({"title" : title, "text" : song[song.find("\\"):], "options" : {}})
+					lst = {"title" : title.group(1), "text" : song[song.find("\\"):]}
+					if(melody != None):
+						lst["melody"] = melody.group(2)
+					if(author != None):
+						lst["author"] = author.group(1)
+						
+					lst["options"] = eval(options) if options != "" else {}
+					
+					songs.append(lst)
+		return songs
+		
+		
+	# Sort songs
+	def sortSongs(self, songlst):
+		specialSongs = [song for song in songlst if len(song["options"]) > 0]
+		songs = [song for song in songlst if len(song["options"]) == 0]
 		
 		sortedSpecialSongs = sorted(specialSongs, key = lambda song: self.comparFun(song))
 		for song in sortedSpecialSongs:
@@ -237,6 +254,8 @@ class SongBooklet:
 			os.mkdir("Booklet")
 		if not os.path.isdir("Songs"):
 			os.mkdir("Songs")
+		if not os.path.isdir("Configs"):
+			os.mkdir("Configs")
 		
 	
 def usage():
