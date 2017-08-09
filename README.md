@@ -56,3 +56,6 @@ If the style specified in the option _**--style**_ does not exist then *arabic* 
 **pos** have priority over **num** in regards to positioning.
 
 Currently the temporary **page** number, is only guaranteed to work if no song is longer than a page.
+
+## License
+Any and all utilization, distribution and reproduction of the whole or parts of this project is only allowed with a valid license, a license can be acquired in exchange of a copy of Kaptajn DIKU.
