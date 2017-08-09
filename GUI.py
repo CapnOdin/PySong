@@ -119,7 +119,7 @@ class Application(ttk.Frame):
 		
 		ttk.Label(self.frameBooklet, text = " Style: ", **self.EntryOptions).grid(row = 0, column = 4)
 		self.pstyle = ttk.Combobox(self.frameBooklet, textvariable = self.widgetVars["style"], values = PySong.auxiliary.getStyles(), **self.EntryOptions); self.pstyle.grid(row = 0, column = 5)
-		self.toolTips(self.pstyle, "E.g. arabic, (R/r)oman, binary, (H/h)ex, ...")
+		self.toolTips(self.pstyle, "<Name> <Regular Expression>")
 		
 		ttk.Label(self.frameBooklet, text = " Indexing: ", **self.EntryOptions).grid(row = 0, column = 6)
 		self.indexing = ttk.Entry(self.frameBooklet, textvariable = self.widgetVars["indexing"], width = 2, **self.EntryOptionsNum); self.indexing.grid(row = 0, column = 7)
@@ -287,7 +287,12 @@ class Application(ttk.Frame):
 		
 	
 	def generate(self):
-		style = self.widgetVars["style"].get() if self.widgetVars["style"].get() in PySong.auxiliary.getStyles() else PySong.handleNewStyle(self.widgetVars["style"].get())
+		if(self.widgetVars["style"].get() in PySong.auxiliary.getStyles()):
+			style = self.widgetVars["style"].get()
+		else:
+			style = PySong.handleNewStyle(self.widgetVars["style"].get())
+			self.pstyle.config(values = PySong.auxiliary.getStyles())
+		
 		pdf = PySong.SongBooklet(self.widgetVars["name"].get(), style, self.widgetVars["logo"].get(), self.widgetVars["indexing"].get())
 		pdf.songLst = [{"title" : self.tree.set(x, "title"), "text" : self.tree.set(x, "song"), "options" : eval(self.tree.set(x, "options"))} for x in self.tree.tag_has("red")]
 		pdf.makeBooklet(self.widgetVars["booklet"].get())
