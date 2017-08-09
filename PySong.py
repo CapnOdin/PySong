@@ -84,10 +84,11 @@ class SongBooklet:
 		for dest in dests:
 			song = re.search("^song(\d*)-?(\d*)$", dest)
 			if(song != None and song.group(2).isnumeric()):
-				if("endPage" in self.songLst[int(song.group(1))]):
-					self.songLst[int(song.group(1))]["endPage"] = int(song.group(2)) if self.songLst[int(song.group(1))]["endPage"] < int(song.group(2)) else self.songLst[int(song.group(1))]["endPage"]
+				index = int(song.group(1)) - self.indexing
+				if("endPage" in self.songLst[index]):
+					self.songLst[index]["endPage"] = int(song.group(2)) if self.songLst[index]["endPage"] < int(song.group(2)) else self.songLst[index]["endPage"]
 				else:
-					self.songLst[int(song.group(1))]["endPage"] = int(song.group(2))
+					self.songLst[index]["endPage"] = int(song.group(2))
 		
 		# finds the page of the ending destination and the start page of each song
 		index = self.indexing
@@ -256,6 +257,15 @@ class SongBooklet:
 			os.mkdir("Songs")
 		if not os.path.isdir("Configs"):
 			os.mkdir("Configs")
+	
+	
+def handleNewStyle(string):
+	name = string.split(" ")[0]		#split the argument into two parts, a name
+	style = string.split(" ")[1]		#and the style, that will be a regular expression
+	if auxiliary.search_styles(name) != name:		 #check if the name is already in use, cannot have two styles by the same name
+		style_tex.new_page_style(name, style)
+		return name
+	return "arabic"
 		
 	
 def usage():
@@ -286,14 +296,7 @@ def main(argv):
 		elif opt in ("-i","--indexing"):		  #option used to print usage
 			indexing = arg
 		elif opt in ("-p", "--number_style"):		  #option used for making a new pagenumber style
-			new_style = arg
-			n = new_style.split(" ")[0]		#split the argument into two parts, a name
-			s = new_style.split(" ")[1]		#and the style, that will be a regular expression
-			if auxiliary.search_styles(n) != n:		 #check if the name is already in use, cannot have two styles by the same name
-				style_tex.new_page_style(n, s)
-				style = n
-			else:
-				print("There is already a style with that name.")
+			style = handleNewStyle(arg)
 		else:
 			usage()
 			sys.exit()
