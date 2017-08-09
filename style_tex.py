@@ -36,14 +36,14 @@ def new_page_style(name, style):
 		else:
 			print("invalid input")
 
-	f = open("page_numbering.tex", 'r')
+	f = open("Resources/page_numbering.tex", 'r')
 	s = f.read()
 	f.close()
 	s = s.replace("\\makeatother", "")		   #remove the \makeatother
 	s += "\\newcommand*{\\" + name + "}[1]{%\n\\expandafter\\@" + name + "\\csname c@#1\\endcsname\n}\n\n\\newcommand*{\\@" + name + "}[1]{%\n$\\ifcase#1\n"	 #create the command for the new style
 	s += new_c
 	s += "\n" + "\n\\else\\@ctrerr\\fi$\n}\n\\makeatother"	 #add the end of the command plus \makeatother
-	f = open("page_numbering.tex", 'w')
+	f = open("Resources/page_numbering.tex", 'w')
 	f.write(s)
 	f.close()
 
