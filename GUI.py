@@ -1,11 +1,17 @@
 
 import os, sys, inspect, time
 
+# for parent dir
+cmd_folder = os.path.realpath(os.path.abspath(os.path.pardir))
+if cmd_folder not in sys.path:
+	sys.path.insert(0, cmd_folder)
+
 # realpath() will make your script run, even if you symlink it :)
 cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile( inspect.currentframe() ))[0])) + "\\lib"
 if cmd_folder not in sys.path:
-	sys.path.insert(0, cmd_folder)
+	#sys.path.insert(0, cmd_folder)
 	sys.path.insert(0, cmd_folder + "\\PyPDF2")
+	sys.path.insert(0, cmd_folder + "\\svglib")
 
 import tkinter as tk
 from tkinter import ttk, font, filedialog
