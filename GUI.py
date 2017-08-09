@@ -64,7 +64,7 @@ class Application(ttk.Frame):
 		
 		self.BoolOptions = {"offvalue": "False", "onvalue": "True", "takefocus": False}
 		
-		self.widgetVars = {"name" : tk.StringVar(), "logo" : tk.StringVar(), "style" : tk.StringVar(), "indexing" : tk.IntVar(), "booklet" : tk.BooleanVar()}
+		self.widgetVars = {"name" : tk.StringVar(), "logo" : tk.StringVar(value = "Resources/UNF_Logo.svg"), "style" : tk.StringVar(value = "arabic"), "indexing" : tk.IntVar(value = 0), "booklet" : tk.BooleanVar(value = True)}
 		
 		self.LOADED = False
 		self.TreeReady = True
@@ -114,17 +114,17 @@ class Application(ttk.Frame):
 		ttk.Label(self.frameBooklet, text = "Titel: ", **self.EntryOptions).grid(row = 0, column = 0)
 		self.name = ttk.Entry(self.frameBooklet, textvariable = self.widgetVars["name"], **self.EntryOptions); self.name.grid(row = 0, column = 1)
 		
-		ttk.Label(self.frameBooklet, text = "Logo: ", **self.EntryOptions).grid(row = 0, column = 2)
+		ttk.Label(self.frameBooklet, text = " Logo: ", **self.EntryOptions).grid(row = 0, column = 2)
 		self.logo = ttk.Entry(self.frameBooklet, textvariable = self.widgetVars["logo"], **self.EntryOptions); self.logo.grid(row = 0, column = 3)
 		
-		ttk.Label(self.frameBooklet, text = "PageNumber Style: ", **self.EntryOptions).grid(row = 0, column = 4)
-		self.pstyle = ttk.Entry(self.frameBooklet, textvariable = self.widgetVars["style"], **self.EntryOptions); self.pstyle.grid(row = 0, column = 5)
+		ttk.Label(self.frameBooklet, text = " Style: ", **self.EntryOptions).grid(row = 0, column = 4)
+		self.pstyle = ttk.Combobox(self.frameBooklet, textvariable = self.widgetVars["style"], values = PySong.auxiliary.getStyles(), **self.EntryOptions); self.pstyle.grid(row = 0, column = 5)
 		self.toolTips(self.pstyle, "E.g. arabic, (R/r)oman, binary, (H/h)ex, ...")
 		
-		ttk.Label(self.frameBooklet, text = "Indexing: ", **self.EntryOptions).grid(row = 0, column = 6)
+		ttk.Label(self.frameBooklet, text = " Indexing: ", **self.EntryOptions).grid(row = 0, column = 6)
 		self.indexing = ttk.Entry(self.frameBooklet, textvariable = self.widgetVars["indexing"], width = 2, **self.EntryOptionsNum); self.indexing.grid(row = 0, column = 7)
 		
-		ttk.Label(self.frameBooklet, text = "Booklet: ", **self.EntryOptions).grid(row = 0, column = 8)
+		ttk.Label(self.frameBooklet, text = " Booklet: ", **self.EntryOptions).grid(row = 0, column = 8)
 		self.booklet = ttk.Checkbutton(self.frameBooklet, variable = self.widgetVars["booklet"]); self.booklet.grid(row = 0, column = 9)
 		
 		ttk.Button(self.frameBooklet, text = "Generate", command = self.generate).grid(row = 0, column = 10)
@@ -233,6 +233,9 @@ class Application(ttk.Frame):
 				for key in save["booklet"]:
 					self.widgetVars[key].set(save["booklet"][key])
 				
+				for parent in self.tree.tag_has("red"):
+					self.tree.removeTag(parent, "red")
+				
 				for parent in self.tree.get_children():
 					if(self.tree.set(parent, "title") in save["songs"]):
 						self.tree.item(parent, tag = ("red",))
@@ -284,7 +287,8 @@ class Application(ttk.Frame):
 		
 	
 	def generate(self):
-		pdf = PySong.SongBooklet(self.widgetVars["name"].get(), self.widgetVars["style"].get(), self.widgetVars["logo"].get(), self.widgetVars["indexing"].get())
+		style = self.widgetVars["style"].get() if self.widgetVars["style"].get() in PySong.auxiliary.getStyles() else PySong.handleNewStyle(self.widgetVars["style"].get())
+		pdf = PySong.SongBooklet(self.widgetVars["name"].get(), style, self.widgetVars["logo"].get(), self.widgetVars["indexing"].get())
 		pdf.songLst = [{"title" : self.tree.set(x, "title"), "text" : self.tree.set(x, "song"), "options" : eval(self.tree.set(x, "options"))} for x in self.tree.tag_has("red")]
 		pdf.makeBooklet(self.widgetVars["booklet"].get())
 
